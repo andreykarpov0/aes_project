@@ -92,7 +92,7 @@ string encrypt(string text, string key)
 	{
 		for(int j = 0; j < blockText[i].size(); ++j)
 		{
-			for(int n = 0; n < j; ++n)
+			for(int n = 0; n <= j; ++n)
 			{
 				mixColumns(blockText[i][j]);
 			}
@@ -148,7 +148,7 @@ string decrypt(string text, string key)
 	{
 		for(int j = 0; j < blockText[i].size(); ++j)
 		{
-			for(int n = 0; n < j; ++n)
+			for(int n = 0; n <= j; ++n)
 			{
 				invMixColumns(blockText[i][j]);
 			}
