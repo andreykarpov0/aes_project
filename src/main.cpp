@@ -7,9 +7,11 @@
 using namespace std;
 
 string readFile(string path);
-string encrypt(string text, string key);
 void writeFile(string path, string text);
-void mixColumns(vector<unsigned char> &blockText);
+string encrypt(string text, string key);
+string decrypt(string text, string key);
+void mixColumns(vector<unsigned char> &state);
+void invMixColumns(vector<unsigned char> &state);
 
 int main() 
 {
