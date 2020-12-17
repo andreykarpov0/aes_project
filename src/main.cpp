@@ -10,27 +10,35 @@ string readFile(string path);
 void writeFile(string path, string text);
 string encrypt(string text, string key);
 string decrypt(string text, string key);
+string keyexpansion(string password);
 void mixColumns(vector<unsigned char> &state);
 void invMixColumns(vector<unsigned char> &state);
 
 int main() 
 {
-    string pathin = "", pathout = "", text = "", key = "";
-	cin >> pathin >> pathout;
+	string pathin, pathout, text, password, key;
+	int n;
+	cout << "Enter path to file in: ";
+	cin >> pathin;
+	cout << "Enter path to file out: ";
+	cin >> pathout;
+	cout << "encrypt - 1, decrypt - 0: ";
+	cin >> n;
+	cout << "Enter password(key size = 16 symbols and password must be only english): ";
+	cin >> password;
+	while(password.size()!=16)
+	{
+		cout << "Incorrect. Enter password(max - 16 symbols and password must be only english): ";
+		cin >> password;
+	}
 	text = readFile(pathin);
-	//создание или чтение ключа
-	fstream fin("key");
-	if(!fin.is_open())
-		for(int i = 0; i < text.size()*10; ++i)
-		{
-			key+=(unsigned char)rand()%255;
-			writeFile("key", key);
-		}
+	key = keyexpansion(password);
+	if(n)
+		text = encrypt(text, key);
 	else
-		readFile("key");
-	fin.close();
-
+		text = decrypt(text, key);
 	writeFile(pathout, text);
+	
 }
 
 string readFile(string path)
@@ -82,6 +90,7 @@ string encrypt(string text, string key)
 			for(int k = 0; k < blockText[i][j].size(); ++k)
 			{
 				if(count >= text.size() * 16)
+					blockText[i][j][k]=1;
 					break;
 				blockText[i][j][k] = (unsigned char)S_BOX[(int)text[count]];
 				++count;
@@ -128,7 +137,6 @@ string decrypt(string text, string key)
 	vector <vector< vector< unsigned char > > > blockText(1,vector<vector<unsigned char > >(4, vector<unsigned char>(4, 0)));
 
 	blockText.resize(text.size() / 16);
-
 	//гаммирование(xor)
 	for(int i = 0; i < blockText.size(); ++i)
 	{
@@ -138,7 +146,7 @@ string decrypt(string text, string key)
 			{
 				if(count >= text.size()*16)
 					break;
-				result += blockText[i][j][k]^key[count];
+				blockText[i][j][k] = text[count]^key[count];
 				++count;
 			}
 		}
@@ -186,4 +194,9 @@ void invMixColumns(vector<unsigned char> &state)
 	swap(state[3], state[2]);
 	swap(state[2], state[1]);
 	swap(state[1], state[0]);
+}
+
+string keyexpansion(string password)
+{
+	
 }
