@@ -8,15 +8,16 @@ using namespace std;
 
 string readFile(string path);
 void writeFile(string path, string text);
-string encrypt(string text, string key);
-string decrypt(string text, string key);
+string encrypt(string text, vector<vector <unsigned char > > key);
+string decrypt(string text, vector<vector <unsigned char > > key);
 string keyexpansion(string password);
 void mixColumns(vector<unsigned char> &state);
 void invMixColumns(vector<unsigned char> &state);
 
 int main() 
 {
-	string pathin, pathout, text, password, key;
+	string pathin, pathout, text, password;
+	vector <vector <unsigned char > > key;
 	int n;
 	cout << "Enter path to file in: ";
 	cin >> pathin;
@@ -32,7 +33,7 @@ int main()
 		cin >> password;
 	}
 	text = readFile(pathin);
-	key = keyexpansion(password);
+	key = keyexpansion(password, text);
 	if(n)
 		text = encrypt(text, key);
 	else
@@ -58,7 +59,7 @@ void writeFile(string path, string text)
 	fout << text;
 	fout.close();
 }
-string encrypt(string text, string key)
+string encrypt(string text, vector<vector <unsigned char > > key)
 {
 	string result = "";
 	int count = 0;
@@ -116,17 +117,14 @@ string encrypt(string text, string key)
 		{
 			for(int k = 0; k < blockText[i][j].size(); ++k)
 			{
-				if(count >= text.size()*16)
-					break;
-				result += blockText[i][j][k]^key[count];
-				++count;
+				result += blockText[i][j][k]^key[j][k+i*16];
 			}
 		}
 	}
 	return result;
 }
 
-string decrypt(string text, string key)
+string decrypt(string text, vector<vector <unsigned char > > key)
 {
 	int count = 0;
 	string result = "";
@@ -144,10 +142,7 @@ string decrypt(string text, string key)
 		{
 			for(int k = 0; k < blockText[i][j].size(); ++k)
 			{
-				if(count >= text.size()*16)
-					break;
-				blockText[i][j][k] = text[count]^key[count];
-				++count;
+				blockText[i][j][k] = text[count]^key[j][k+i*16];
 			}
 		}
 	}
@@ -175,11 +170,31 @@ string decrypt(string text, string key)
 				if(count >= text.size() * 16)
 					break;
 				blockText[i][j][k] = (unsigned char)INV_S_BOX[(int)text[count]];
+				result += (unsigned char)INV_S_BOX[(int)text[count]];
 				++count;
 			}
 		}
 	}
-
+	for(int i = result.size()-1;;--i)
+	{
+		if(result[i] == 0)
+		{
+			result.substr(0, result.size()-1);
+		}
+		else if(result[i] == 1)
+		{
+			result.substr(0, result.size()-1);
+			break;
+		}
+	}
+	while(result[result.size()-1] == 0)
+	{
+		result.substr(0, result.size()-1);
+	}
+	if(result[result.size()-1] == 1)
+	{
+		result.substr(0, result.size()-1);
+	}
 	return result;
 }
 
@@ -196,7 +211,27 @@ void invMixColumns(vector<unsigned char> &state)
 	swap(state[1], state[0]);
 }
 
-string keyexpansion(string password)
-{
-	
+vector<vector<unsigned char > > key(4, vector<unsigned char>(4, 0));
+int w = key[0].size(), n = 1;
+char boof;
+
+vector<vector <unsigned char > > keyexpansion(string password, string text)
+{	
+	for(int i = 0; i < key.size(); ++i)
+	{
+		for(int j = 0; j < key[i].size(); ++j)
+		{
+			key[i][j] = password[i*4+j];
+		}
+	}
+	for(int n = 0; n < text.size()%16+1; ++n)
+	{
+		for(int i = 0; i < 4; ++i)
+		{
+			key[i].push_back(key[i][w-3]^key[i][w-1]^n);
+			n*2;
+		}
+		++w;
+	}
+	return key;
 }
