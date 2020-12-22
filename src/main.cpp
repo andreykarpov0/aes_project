@@ -10,14 +10,13 @@ string readFile(string path);
 void writeFile(string path, string text);
 string encrypt(string text, vector<vector <unsigned char > > key);
 string decrypt(string text, vector<vector <unsigned char > > key);
-string keyexpansion(string password);
+vector<vector <unsigned char > > keyexpansion(string password, string text);
 void mixColumns(vector<unsigned char> &state);
 void invMixColumns(vector<unsigned char> &state);
 
 int main() 
 {
-	string pathin, pathout, text, password;
-	vector <vector <unsigned char > > key;
+	string pathin, pathout, text, password, a;
 	int n;
 	cout << "Enter path to file in: ";
 	cin >> pathin;
@@ -33,13 +32,14 @@ int main()
 		cin >> password;
 	}
 	text = readFile(pathin);
-	key = keyexpansion(password, text);
+	auto key = keyexpansion(password, text);
 	if(n)
 		text = encrypt(text, key);
 	else
 		text = decrypt(text, key);
 	writeFile(pathout, text);
-	
+	cout << "successfully" << endl;
+	cin >> a;
 }
 
 string readFile(string path)
