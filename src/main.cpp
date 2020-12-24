@@ -16,7 +16,8 @@ void invMixColumns(vector<unsigned char> &state);
 
 int main() 
 {
-	string pathin, pathout, text, password, a, res;
+	string pathin, pathout, text, password, res;
+	char a;
 	int n;
 	cout << "Enter path to file in: ";
 	cin >> pathin;
@@ -32,7 +33,7 @@ int main()
 		cin >> password;
 	}
 	text = readFile(pathin);
-	cout << endl << text << endl;
+	cout << text << endl;
 	auto key = keyexpansion(password, text.size());
 	if(n)
 		res = encrypt(text, key);
@@ -40,7 +41,9 @@ int main()
 		res = decrypt(text, key);
 	//res = text;
 	writeFile(pathout, res);
-	cout << "successfully" << endl;
+	cout << res << endl;
+	cin >> a;
+	cin >> a;
 }
 
 string readFile(string path)
@@ -96,8 +99,10 @@ string encrypt(string text, vector<vector <unsigned char > > key)
 			for(int k = 0; k < 4; ++k)
 			{
 				if(count >= text.size() * 16)
+				{
 					blockText[i][j][k]=1;
 					break;
+				}
 				blockText[i][j][k]=(unsigned char)S_BOX[(int)text[count]];
 				++count;
 			}
@@ -114,7 +119,7 @@ string encrypt(string text, vector<vector <unsigned char > > key)
 				mixColumns(blockText[i][j]);
 			}
 		}
-	}result = "hello";
+	}
 	//гаммирование(xor)
 	for(int i = 0; i < blockText.size(); ++i)
 	{
@@ -234,7 +239,7 @@ vector<vector <unsigned char > > keyexpansion(string password, int tsize)
 		for(int i = 0; i < 4; ++i)
 		{
 			key[i].push_back(key[i][w-3]^key[i][w-1]^n);
-			n*2;
+			n*=2;
 		}
 		++w;
 	}
